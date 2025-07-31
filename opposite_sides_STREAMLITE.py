@@ -267,8 +267,7 @@ def get_upscaled_images(img_array, upscale_factor, RES_H, RES_W):
     return img.resize((final_width, final_height))
 
 def main():
-    st.markdown("<h1 style='text-align: center;'>Dual-Sided Rubik's Cube Mosaic</h1>", unsafe_allow_html=True)
-    st.markdown("<h1 style='text-align: center;'>2.0</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align: center;'>Dual-Sided Rubik's Cube Mosaic 2.0</h1>", unsafe_allow_html=True)
     st.write("---")
 
     st.sidebar.image("cube.png", use_container_width=True)
@@ -282,8 +281,8 @@ def main():
 
     # Upload the second image
     img2 = st.file_uploader("Upload Image 2", type=["png", "jpg", "jpeg"])
-    st.markdown("Generate mosaic for individual images from here (https://bestsiteever.ru/mosaic/) and drag and drop the files.")
-    st.markdown("**Note: Make sure to import images with equal no. of pixels.")
+    st.markdown("Generate mosaic for individual images from here (https://bestsiteever.ru/mosaic/) then drag and drop the files above.")
+    st.markdown("**Note: Both images must have the same resolution (same width x height)")
     st.write("---")
 
     # Process the images if both are uploaded
