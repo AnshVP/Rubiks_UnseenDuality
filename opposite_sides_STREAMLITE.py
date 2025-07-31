@@ -20,6 +20,18 @@ img2_cubic= []
 change_in_img1 = False
 count = 0
 
+# Define Rubik’s Cube standard colors (approximate RGB)
+CUBE_COLORS = np.array([
+        [255, 255, 255],   # White
+        [255, 255,   0],   # Yellow
+        [255,   0,   0],   # Red
+        [  0, 255,   0],   # Green
+        [  0,   0, 255],   # Blue
+        [255, 153,   0],   # Orange
+    ])
+
+TOLERANCE = 30  # How strict the color match should be
+
 color_code = {"red":[255, 0, 0],"green":[0,255,0],"white":[255,255,255],"orange":[255, 153, 0],"blue":[0, 0, 255],"yellow":[255,255, 0]}
 opp_color = {"white":"yellow","yellow":"white","green":"blue","blue":"green","orange":"red","red":"orange"}
 corner_count = {"red":0, "blue":0, "orange":0, "yellow":0, "green":0, "white":0}
@@ -266,6 +278,16 @@ def get_upscaled_images(img_array, upscale_factor, RES_H, RES_W):
     # This guarantees the upscaled image fills the entire mosaic grid area, regardless of aspect ratio
     return img.resize((final_width, final_height))
 
+def is_valid_miniature_image(img_array):
+        unique_colors = np.unique(img_array.reshape(-1, 3), axis=0)
+        matched_colors = 0
+        for color in CUBE_COLORS:
+            for uc in unique_colors:
+                if np.linalg.norm(color - uc) <= TOLERANCE:
+                    matched_colors += 1
+                    break
+        return matched_colors == 6
+
 def main():
     st.markdown("<h1 style='text-align: center;'>Dual-Sided Rubik's Cube Mosaic 2.0</h1>", unsafe_allow_html=True)
     st.write("---")
@@ -281,6 +303,7 @@ def main():
 
     # Upload the second image
     img2 = st.file_uploader("Upload Image 2", type=["png", "jpg", "jpeg"])
+
     st.markdown("Generate mosaic for individual images from here (https://bestsiteever.ru/mosaic/) then drag and drop the files above.")
     st.markdown("**Note: Both images must have the same resolution (same width x height)")
     st.write("---")
@@ -288,78 +311,95 @@ def main():
     # Process the images if both are uploaded
     if img1 is not None and img2 is not None:
         global RES_H, RES_W
- 
-        img1 = Image.open(img1)
-        img2 = ImageOps.mirror(Image.open(img2))
 
-        img1 = adjust_and_crop_image(img1)
-        img2 = adjust_and_crop_image(img2)
-    
-        # Optionally show user a warning if cropping occurred
-        st.info(f"Images automatically cropped to {img1.size} for mosaic compatibility.")
-
-        # img1 = img1.rotate(-90, expand=True)
-        # img2 = img2.rotate(90, expand=True)
-
-        # Convert the image to RGB format
-        img1_rgb = img1.convert('RGB')
-        img2_rgb = img2.convert('RGB')
-
-        # Convert the RGB image to a NumPy array
-        img1_array = np.array(img1_rgb)
-        img2_array = np.array(img2_rgb)
-
+        try:
+            img1 = Image.open(img1).convert('RGB')
+            img1 = adjust_and_crop_image(img1)
+            st.info(f"Image 1 automatically cropped to {img1.size} for mosaic compatibility.")
         
-        RES_H = img1_array.shape[0] // 3  # Height in cube blocks
-        RES_W = img1_array.shape[1] // 3  # Width in cube blocks
+            img2 = ImageOps.mirror(Image.open(img2)).convert('RGB')
+            img2 = adjust_and_crop_image(img2)
+            st.info(f"Image 2 automatically cropped to {img2.size} for mosaic compatibility.")
+        
+        except Exception as e:
+            st.error("❌ Failed to open one or both files. Make sure they're valid images.")
+            st.stop()
 
-        upscale_factor = 8  
+        if img1.size != img2.size:
+            st.error("❌ Make sure to upload images with same resolution.")
+            st.stop()
 
-        upscaled_img1 = get_upscaled_images(img1_array, upscale_factor, RES_H, RES_W)
-        upscaled_img2 = get_upscaled_images(img2_array, upscale_factor, RES_H, RES_W)
+        else:
 
-        st.subheader("Image 1")
-        st.image(upscaled_img1, use_container_width=True)
+            # Optionally show user a warning if cropping occurred
 
-        st.subheader("Image 2")
-        st.image(upscaled_img2, use_container_width=True)
+            # img1 = img1.rotate(-90, expand=True)
+            # img2 = img2.rotate(90, expand=True)
 
-        if st.button("Process Images"):
+            # Convert the RGB image to a NumPy array
+            img1_array = np.array(img1)
+            img2_array = np.array(img2)
 
-            new_img1, new_img2 = process_images(img1_array, img2_array)
+            # Validate both images
+            if not is_valid_miniature_image(img1_array):
+                st.error("❌ First image is not a valid Rubik's Cube miniature mosaic image.")
+                st.stop()
+            if not is_valid_miniature_image(img2_array):
+                st.error("❌ Second image is not a valid Rubik's Cube miniature mosaic image.")
+                st.stop()
+
+            RES_H = img1_array.shape[0] // 3  # Height in cube blocks
+            RES_W = img1_array.shape[1] // 3  # Width in cube blocks
 
             upscale_factor = 8  
+            upscaled_img1 = get_upscaled_images(img1_array, upscale_factor, RES_H, RES_W)
+            upscaled_img2 = get_upscaled_images(img2_array, upscale_factor, RES_H, RES_W)
 
-            upscaled_img1 = get_upscaled_images(new_img1, upscale_factor, RES_H, RES_W)
-            upscaled_img2 = get_upscaled_images(new_img2, upscale_factor, RES_H, RES_W)
-
-            st.subheader("Converted Image 1")
+            st.subheader("Image 1")
             st.image(upscaled_img1, use_container_width=True)
-
-            st.subheader("Converted Image 2")
+            st.subheader("Image 2")
             st.image(upscaled_img2, use_container_width=True)
 
-            st.success("Images processed successfully!")
-            
-            zip_buffer = BytesIO()
-            with zipfile.ZipFile(zip_buffer, 'a', zipfile.ZIP_DEFLATED, False) as zip_file:
-                for image, filename in zip([Image.fromarray(new_img1), Image.fromarray(new_img2)], ['miniature_img1.png', 'miniature_img2.png']):
-                    # Create an in-memory stream for each image
-                    image_stream = BytesIO()
-                    image.save(image_stream, format='PNG')
-                    image_bytes = image_stream.getvalue()
-                    # Add the image bytes to the ZIP file
-                    zip_file.writestr(filename, image_bytes)
 
-            # Provide the ZIP file for download
-            zip_data = zip_buffer.getvalue()
-            st.download_button(
-                label="Download Images",
-                data=zip_data,
-                file_name="DualSided_Rubik'sCube_images.zip",
-                mime="application/zip",
-            )
-            st.markdown("Paste the (downloaded)converted images for making mosaic here (https://bestsiteever.ru/mosaic/) and download the pdf.")
+            if st.button("Process Images"):
+                try:
+                    new_img1, new_img2 = process_images(img1_array, img2_array)
+                except:
+                    st.error("❌ Please upload valid Rubik's Cube miniature mosaic image.")
+                    st.stop()
+
+                upscale_factor = 8  
+
+                upscaled_img1 = get_upscaled_images(new_img1, upscale_factor, RES_H, RES_W)
+                upscaled_img2 = get_upscaled_images(new_img2, upscale_factor, RES_H, RES_W)
+
+                st.subheader("Converted Image 1")
+                st.image(upscaled_img1, use_container_width=True)
+
+                st.subheader("Converted Image 2")
+                st.image(upscaled_img2, use_container_width=True)
+
+                st.success("Images processed successfully!")
+
+                zip_buffer = BytesIO()
+                with zipfile.ZipFile(zip_buffer, 'a', zipfile.ZIP_DEFLATED, False) as zip_file:
+                    for image, filename in zip([Image.fromarray(new_img1), Image.fromarray(new_img2)], ['miniature_img1.png', 'miniature_img2.png']):
+                        # Create an in-memory stream for each image
+                        image_stream = BytesIO()
+                        image.save(image_stream, format='PNG')
+                        image_bytes = image_stream.getvalue()
+                        # Add the image bytes to the ZIP file
+                        zip_file.writestr(filename, image_bytes)
+
+                # Provide the ZIP file for download
+                zip_data = zip_buffer.getvalue()
+                st.download_button(
+                    label="Download Images",
+                    data=zip_data,
+                    file_name="DualSided_Rubik'sCube_images.zip",
+                    mime="application/zip",
+                )
+                st.markdown("Paste the (downloaded)converted images for making mosaic here (https://bestsiteever.ru/mosaic/) and download the pdf.")
         
 
 if __name__ == "__main__":
