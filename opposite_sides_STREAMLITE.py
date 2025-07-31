@@ -267,7 +267,7 @@ def get_upscaled_images(img_array, upscale_factor, RES_H, RES_W):
     return img.resize((final_width, final_height))
 
 def main():
-    st.title("Dual-Sided Rubik's Cube Mosaic")
+    st.markdown("<h1 style='text-align: center;'>Dual-Sided Rubik's Cube Mosaic</h1>", unsafe_allow_html=True)
     st.markdown("<h1 style='text-align: center;'>2.0</h1>", unsafe_allow_html=True)
     st.write("---")
 
