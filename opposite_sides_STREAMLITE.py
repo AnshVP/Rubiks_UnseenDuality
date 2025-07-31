@@ -267,12 +267,13 @@ def get_upscaled_images(img_array, upscale_factor, RES_H, RES_W):
     return img.resize((final_width, final_height))
 
 def main():
-    st.title("Dual-Sided Rubik's Cube Portrait 2.0")
+    st.title("Dual-Sided Rubik's Cube Mosaic")
+    st.markdown("<h1 style='text-align: center;'>2.0</h1>", unsafe_allow_html=True)
     st.write("---")
 
-    st.sidebar.image("https://yt3.googleusercontent.com/ytc/AIdro_m_FFw3OGZ5SH0U-l_37_HQMQCyqfoL2co8iCBJQgQJ-q4b=s900-c-k-c0x00ffffff-no-rj", use_column_width=True)
+    st.sidebar.image("cube.png", use_container_width=True)
     
-    st.sidebar.markdown("<div style='font-size:20px; font-weight:bold;'>Center For Creative Learning (CCL), IIT Gandhinagar</div>", unsafe_allow_html=True)
+    st.sidebar.markdown("<div style='font-size:18px; font-weight:bold;'>This application creates a dual-sided Rubik's Cube mosaic from two input images. Cubes are arranged so that flipping the grid reveals an alternate view. Ideal for installations, exhibitions, and creative visualizations. A smart integration of art, algorithms, and spatial symmetry.</div>", unsafe_allow_html=True)
     
     st.markdown("<h3 style='text-align: center;'>Upload Images</h3>", unsafe_allow_html=True)
 
@@ -319,10 +320,10 @@ def main():
         upscaled_img2 = get_upscaled_images(img2_array, upscale_factor, RES_H, RES_W)
 
         st.subheader("Image 1")
-        st.image(upscaled_img1, use_column_width=True)
+        st.image(upscaled_img1, use_container_width=True)
 
         st.subheader("Image 2")
-        st.image(upscaled_img2, use_column_width=True)
+        st.image(upscaled_img2, use_container_width=True)
 
         if st.button("Process Images"):
 
@@ -334,10 +335,10 @@ def main():
             upscaled_img2 = get_upscaled_images(new_img2, upscale_factor, RES_H, RES_W)
 
             st.subheader("Converted Image 1")
-            st.image(upscaled_img1, use_column_width=True)
+            st.image(upscaled_img1, use_container_width=True)
 
             st.subheader("Converted Image 2")
-            st.image(upscaled_img2, use_column_width=True)
+            st.image(upscaled_img2, use_container_width=True)
 
             st.success("Images processed successfully!")
             
