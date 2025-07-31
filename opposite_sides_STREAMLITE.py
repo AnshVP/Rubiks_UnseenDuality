@@ -373,10 +373,10 @@ def main():
                 upscaled_img1 = get_upscaled_images(new_img1, upscale_factor, RES_H, RES_W)
                 upscaled_img2 = get_upscaled_images(new_img2, upscale_factor, RES_H, RES_W)
 
-                st.subheader("Converted Image 1")
+                st.subheader("Processed Image 1")
                 st.image(upscaled_img1, use_container_width=True)
 
-                st.subheader("Converted Image 2")
+                st.subheader("Processed Image 2")
                 st.image(upscaled_img2, use_container_width=True)
 
                 st.success("Images processed successfully!")
