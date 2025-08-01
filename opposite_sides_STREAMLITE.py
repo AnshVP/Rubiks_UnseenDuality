@@ -284,7 +284,7 @@ def get_video_html(path):
         encoded = base64.b64encode(video_bytes).decode()
         return f"""
           <p style="display: flex; justify-content: center;">
-            <video autoplay loop muted playsinline style="width: 60%; border-radius: 10px;">
+            <video autoplay loop muted playsinline style="max-width: 300px; max-height: 400px; border-radius: 10px;">
                 <source src="data:video/mp4;base64,{encoded}" type="video/mp4">
                 Your browser does not support the video tag.
             </video>
@@ -292,9 +292,19 @@ def get_video_html(path):
         """
 
 def main():
-    # st.markdown("<h1 style='text-align: center;'>Dual-Sided Rubik's Cube Mosaic 2.0</h1>", unsafe_allow_html=True)
-
-    # st.sidebar.image("example.jpg", use_container_width=True)
+    st.markdown("""
+    <style>
+        /* Increase sidebar width */
+        [data-testid="stSidebar"] {
+            min-width: 400px;
+            max-width: 370px;
+        }
+        /* Optional: increase content padding so main area adjusts */
+        # [data-testid="stSidebar"] > div:first-child {
+        #     padding: 1rem;
+        # }
+    </style>
+""", unsafe_allow_html=True)
 
     video_html = get_video_html("video.mp4")
 
