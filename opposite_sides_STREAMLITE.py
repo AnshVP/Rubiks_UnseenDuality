@@ -278,19 +278,6 @@ def get_upscaled_images(img_array, upscale_factor, RES_H, RES_W):
     # This guarantees the upscaled image fills the entire mosaic grid area, regardless of aspect ratio
     return img.resize((final_width, final_height))
 
-def get_video_html(path):
-    with open(path, "rb") as video_file:
-        video_bytes = video_file.read()
-        encoded = base64.b64encode(video_bytes).decode()
-        return f"""
-          <p style="display: flex; justify-content: center;">
-            <video autoplay loop muted playsinline style="max-width: 300px; max-height: 400px; border-radius: 10px;">
-                <source src="data:video/mp4;base64,{encoded}" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-        </p>
-        """
-
 def main():
     st.markdown("""
     <style>
@@ -306,10 +293,16 @@ def main():
     </style>
 """, unsafe_allow_html=True)
 
-    video_html = get_video_html("video.mp4")
+    VIDEO_URL = "https://raw.githubusercontent.com/AnshVP/Rubiks_UnseenDuality/main/video.mp4"
 
-    with st.sidebar:
-        st.markdown(video_html, unsafe_allow_html=True)
+    st.sidebar.markdown(f"""
+        <p style="display: flex; justify-content: center;">
+            <video autoplay loop muted playsinline style="max-width: 300px; max-height: 400px; border-radius: 10px;">
+                <source src="{VIDEO_URL}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </p>
+    """, unsafe_allow_html=True)
 
     st.sidebar.markdown("<p style='font-size:18px; font-weight:bold;'>This application creates a dual-sided Rubik's Cube mosaic from two input images. Cubes are arranged so that flipping the grid reveals an alternate view. Ideal for installations, exhibitions, and creative visualizations. A smart integration of art, algorithms, and spatial symmetry.</p>", unsafe_allow_html=True)
     
