@@ -284,7 +284,7 @@ def get_video_html(path):
         encoded = base64.b64encode(video_bytes).decode()
         return f"""
           <p style="display: flex; justify-content: center;">
-            <video autoplay loop muted playsinline style="width: 80%; border-radius: 10px;">
+            <video autoplay loop muted playsinline style="width: 60%; border-radius: 10px;">
                 <source src="data:video/mp4;base64,{encoded}" type="video/mp4">
                 Your browser does not support the video tag.
             </video>
