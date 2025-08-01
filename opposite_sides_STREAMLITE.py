@@ -1,5 +1,6 @@
 # Importing essential libraries
 
+import base64
 from io import BytesIO
 import random
 import numpy as np     # Used for using multi-dimensional arrays , matrices and other mathematical functions
@@ -184,7 +185,6 @@ def process_images(img1, img2):
         clear_color_count()
 
         pattern_code = get_corner_code(i)
-        print(pattern_code)
 
         if pattern_code[0] == [4,4]:
             if(pattern_code[1][0] != opp_color[pattern_code[1][1]]):
@@ -278,24 +278,40 @@ def get_upscaled_images(img_array, upscale_factor, RES_H, RES_W):
     # This guarantees the upscaled image fills the entire mosaic grid area, regardless of aspect ratio
     return img.resize((final_width, final_height))
 
-def is_valid_miniature_image(img_array):
-        unique_colors = np.unique(img_array.reshape(-1, 3), axis=0)
-        matched_colors = 0
-        for color in CUBE_COLORS:
-            for uc in unique_colors:
-                if np.linalg.norm(color - uc) <= TOLERANCE:
-                    matched_colors += 1
-                    break
-        return matched_colors == 6
+def get_video_html(path):
+    with open(path, "rb") as video_file:
+        video_bytes = video_file.read()
+        encoded = base64.b64encode(video_bytes).decode()
+        return f"""
+          <p style="display: flex; justify-content: center;">
+            <video autoplay loop muted playsinline style="width: 80%; border-radius: 10px;">
+                <source src="data:video/mp4;base64,{encoded}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </p>
+        """
 
 def main():
-    st.markdown("<h1 style='text-align: center;'>Dual-Sided Rubik's Cube Mosaic 2.0</h1>", unsafe_allow_html=True)
-    st.write("---")
+    # st.markdown("<h1 style='text-align: center;'>Dual-Sided Rubik's Cube Mosaic 2.0</h1>", unsafe_allow_html=True)
 
-    st.sidebar.image("cube.png", use_container_width=True)
+    # st.sidebar.image("example.jpg", use_container_width=True)
+
+    video_html = get_video_html("video.mp4")
+
+    with st.sidebar:
+        st.markdown(video_html, unsafe_allow_html=True)
+
+    st.sidebar.markdown("<p style='font-size:18px; font-weight:bold;'>This application creates a dual-sided Rubik's Cube mosaic from two input images. Cubes are arranged so that flipping the grid reveals an alternate view. Ideal for installations, exhibitions, and creative visualizations. A smart integration of art, algorithms, and spatial symmetry.</p>", unsafe_allow_html=True)
     
-    st.sidebar.markdown("<div style='font-size:18px; font-weight:bold;'>This application creates a dual-sided Rubik's Cube mosaic from two input images. Cubes are arranged so that flipping the grid reveals an alternate view. Ideal for installations, exhibitions, and creative visualizations. A smart integration of art, algorithms, and spatial symmetry.</div>", unsafe_allow_html=True)
+    col1, col2 = st.columns([2, 8])  # Adjust width ratios as needed
     
+    with col1:
+        st.image("cube.png", use_container_width=True)  # Or use a URL or other local path
+
+    with col2:  
+        st.markdown("<h1 style='padding-top: 10px;'>Dual-Sided Rubik's Cube Mosaic 2.0</h1>", unsafe_allow_html=True)
+
+    st.write("---")
     st.markdown("<h3 style='text-align: center;'>Upload Images</h3>", unsafe_allow_html=True)
 
     # Upload the first image
@@ -339,14 +355,6 @@ def main():
             # Convert the RGB image to a NumPy array
             img1_array = np.array(img1)
             img2_array = np.array(img2)
-
-            # Validate both images
-            if not is_valid_miniature_image(img1_array):
-                st.error("❌ First image is not a valid Rubik's Cube miniature mosaic image.")
-                st.stop()
-            if not is_valid_miniature_image(img2_array):
-                st.error("❌ Second image is not a valid Rubik's Cube miniature mosaic image.")
-                st.stop()
 
             RES_H = img1_array.shape[0] // 3  # Height in cube blocks
             RES_W = img1_array.shape[1] // 3  # Width in cube blocks
@@ -399,7 +407,7 @@ def main():
                     file_name="DualSided_Rubik'sCube_images.zip",
                     mime="application/zip",
                 )
-                st.markdown("Paste the (downloaded)converted images for making mosaic here (https://bestsiteever.ru/mosaic/) and download the pdf.")
+                st.markdown("Paste the downloaded images for making mosaic here (https://bestsiteever.ru/mosaic/) and download the pdf.")
         
 
 if __name__ == "__main__":
